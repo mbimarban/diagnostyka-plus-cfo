@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostyka S.A. — CFO Dashboard</title>
+<style>
+/* ── RESET & BASE ───────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:#EAECF2;
+  color:#1a2535;
+  line-height:1.6;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── TOKENS ─────────────────────────────── */
+:root{
+  --navy:#1F3864;--navy-b:#2A4A80;--navy-lt:#3A5FA0;
+  --blue:#2E75B6;--blue-lt:#D9E8F5;--blue-pale:#EBF3FB;
+  --gd:#3D4E63;--gm:#6B7A90;--gl:#DDE2EA;
+  --white:#FFFFFF;
+  --green:#1E7D52;--gbg:#EAF5EE;--gbd:#A8D5BB;
+  --amber:#A5620A;--abg:#FEF3E2;--abd:#F0C070;
+  --red:#8B1C1C;--rbg:#FDEAEA;--rbd:#E09090;
+  --sh:0 1px 4px rgba(31,56,100,.10);
+  --shm:0 3px 16px rgba(31,56,100,.13);
+  --r:8px;
+}
+
+/* ── HERO STRIP ─────────────────────────── */
+.hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-b) 50%,var(--navy-lt) 100%);
+  padding:32px 40px 28px;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.hero::before{content:"";position:absolute;top:-70px;right:-70px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.hero::after{content:"";position:absolute;bottom:-40px;right:120px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hero-left{}
+.hero-badge{
+  display:inline-block;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);
+  border-radius:20px;padding:3px 12px;
+  font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin-bottom:10px;
+}
+.hero h1{font-size:1.7rem;font-weight:700;letter-spacing:-.025em;line-height:1.2;margin-bottom:5px}
+.hero-sub{font-size:.9rem;color:rgba(255,255,255,.72);max-width:540px;line-height:1.55}
+.hero-meta{margin-top:14px;display:flex;gap:16px;flex-wrap:wrap}
+.hero-meta span{font-size:.68rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.04em}
+.hero-meta strong{color:rgba(255,255,255,.72)}
+.hero-verdict{
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--r);padding:14px 18px;min-width:220px;
+  flex-shrink:0;align-self:flex-start;
+}
+.hero-verdict-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:6px}
+.hero-verdict-val{font-size:.88rem;font-weight:600;color:#fff;line-height:1.45}
+
+/* ── KPI ROW ────────────────────────────── */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  background:var(--navy);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+@media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{
+  padding:16px 22px;
+  border-right:1px solid rgba(255,255,255,.08);
+  position:relative;
+}
+.kpi:last-child{border-right:none}
+.kpi::before{
+  content:"";
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--green);opacity:.7;
+}
+.kpi-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:600}
+.kpi-val{font-size:1.6rem;font-weight:700;color:#fff;line-height:1}
+.kpi-sub{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:4px}
+.kpi-delta{
+  display:inline-flex;align-items:center;gap:2px;
+  font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:9px;margin-top:7px;
+  background:rgba(30,125,82,.35);color:#6DEEA8;
+}
+
+/* ── NAV BAR ────────────────────────────── */
+.nav-wrap{
+  background:var(--white);
+  border-bottom:2px solid var(--gl);
+  box-shadow:var(--sh);
+  flex-shrink:0;
+  position:sticky;top:0;z-index:100;
+}
+.nav-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;gap:2px;
+  padding:0 24px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-btn{
+  flex-shrink:0;
+  background:none;border:none;cursor:pointer;
+  padding:14px 18px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  position:relative;
+  border-bottom:3px solid transparent;
+  margin-bottom:-2px;
+  transition:border-color .18s,color .18s,background .18s;
+  border-radius:var(--r) var(--r) 0 0;
+  color:var(--gm);
+  min-width:90px;
+}
+.nav-btn:hover{background:#F4F6FA;color:var(--gd)}
+.nav-btn.active{border-bottom-color:var(--navy);color:var(--navy)}
+.nav-icon{font-size:1.1rem;line-height:1}
+.nav-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;line-height:1}
+.nav-tag{
+  font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:8px;
+  letter-spacing:.03em;
+}
+.tag-g{background:var(--gbg);color:var(--green)}
+.tag-a{background:var(--abg);color:var(--amber)}
+.tag-r{background:var(--rbg);color:var(--red)}
+.tag-n{background:var(--blue-lt);color:var(--navy)}
+
+/* ── MAIN CONTENT ───────────────────────── */
+.main{flex:1;max-width:1100px;margin:0 auto;width:100%;padding:28px 24px 48px}
+
+/* ── SECTIONS ───────────────────────────── */
+.section{display:none;animation:fadeIn .2s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION HEADER ─────────────────────── */
+.sec-head{margin-bottom:20px}
+.sec-title{font-size:1.15rem;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+.sec-desc{font-size:.875rem;color:var(--gm);margin-top:6px;max-width:680px;line-height:1.6}
+
+/* ── GRID LAYOUTS ───────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+@media(max-width:680px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* ── CARD ───────────────────────────────── */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:20px 22px}
+.card-t{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gm);margin-bottom:12px}
+
+/* ── STAT CARD ──────────────────────────── */
+.stat-card{
+  background:var(--white);border-radius:var(--r);box-shadow:var(--sh);
+  padding:18px 20px;border-left:4px solid var(--navy);
+}
+.stat-card.g{border-left-color:var(--green)}
+.stat-card.a{border-left-color:var(--amber)}
+.stat-card.r{border-left-color:#c0392b}
+.stat-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--gm);margin-bottom:4px;font-weight:600}
+.stat-val{font-size:1.5rem;font-weight:700;color:var(--navy);line-height:1}
+.stat-card.g .stat-val{color:var(--green)}
+.stat-card.a .stat-val{color:var(--amber)}
+.stat-card.r .stat-val{color:#c0392b}
+.stat-sub{font-size:.75rem;color:var(--gm);margin-top:4px}
+.stat-delta{
+  display:inline-flex;align-items:center;
+  font-size:.69rem;font-weight:700;padding:2px 8px;border-radius:9px;margin-top:8px;
+}
+.sd-up{background:var(--gbg);color:var(--green)}
+.sd-down{background:var(--abg);color:var(--amber)}
+.sd-warn{background:var(--rbg);color:var(--red)}
+
+/* ── TABLE ──────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;background:var(--white);font-size:.845rem}
+thead th{
+  background:var(--navy);color:#fff;
+  padding:11px 15px;text-align:left;
+  font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;
+}
+thead th:first-child{border-radius:var(--r) 0 0 0}
+thead th:last-child{border-radius:0 var(--r) 0 0}
+tbody tr{border-bottom:1px solid var(--gl)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F6F8FC}
+td{padding:10px 15px;vertical-align:top;color:var(--gd);line-height:1.5}
+td:first-child{font-weight:600;color:var(--navy)}
+.tr-hl td{background:var(--blue-pale);font-weight:700}
+.tr-sub td:first-child{font-weight:400;color:var(--gm);padding-left:28px}
+.tr-good td{background:#F4FBF6}
+.tr-warn td{background:#FFFBF2}
+.tr-bad  td{background:#FEF5F5}
+
+/* ── BADGE ──────────────────────────────── */
+.badge{display:inline-block;padding:2px 9px;border-radius:9px;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.bg{background:var(--gbg);color:var(--green);border:1px solid var(--gbd)}
+.ba{background:var(--abg);color:var(--amber);border:1px solid var(--abd)}
+.br{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+.bn{background:var(--blue-lt);color:var(--navy);border:1px solid #B0C8E8}
+
+/* ── INSIGHT / CALLOUT ──────────────────── */
+.callout{border-radius:0 var(--r) var(--r) 0;padding:14px 18px;font-size:.87rem;line-height:1.65;border-left:4px solid}
+.callout.blue{background:var(--blue-pale);border-color:var(--blue);color:var(--navy)}
+.callout.green{background:var(--gbg);border-color:var(--green);color:#194D34}
+.callout.amber{background:var(--abg);border-color:var(--amber);color:#6B3E00}
+.callout.red{background:var(--rbg);border-color:#c0392b;color:var(--red)}
+
+/* ── EDU BOX ────────────────────────────── */
+.edu{background:#F0F4FB;border:1px solid #C5D5EE;border-radius:var(--r);padding:14px 18px;font-size:.84rem;color:var(--gd)}
+.edu-t{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:8px}
+.edu ul{padding-left:16px}
+.edu li{margin-bottom:3px}
+
+/* ── TWO-PANEL ──────────────────────────── */
+.split{display:grid;grid-template-columns:3fr 2fr;gap:16px}
+@media(max-width:720px){.split{grid-template-columns:1fr}}
+
+/* ── PROGRESS BAR ───────────────────────── */
+.pbar-row{margin-bottom:10px}
+.pbar-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px}
+.pbar-label span{color:var(--gm)}
+.pbar-label strong{color:var(--gd);font-weight:600}
+.pbar-track{height:7px;background:var(--gl);border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* ── VERDICT ────────────────────────────── */
+.verdict{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-b) 100%);
+  color:#fff;border-radius:var(--r);padding:32px 36px;
+  box-shadow:var(--shm);
+}
+.verdict-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.42);margin-bottom:10px;font-weight:700}
+.verdict h2{font-size:1.35rem;font-weight:700;line-height:1.3;margin-bottom:20px}
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:560px){.verdict-grid{grid-template-columns:1fr}}
+.vcol-t{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.12)}
+.vcol-t.pos{color:#6DEEA8}.vcol-t.neg{color:#FFAA7A}
+.vlist{list-style:none}
+.vlist li{font-size:.835rem;color:rgba(255,255,255,.78);padding:6px 0 6px 16px;border-bottom:1px solid rgba(255,255,255,.06);position:relative}
+.vlist li:last-child{border-bottom:none}
+.vlist li::before{content:"→";position:absolute;left:0;color:rgba(255,255,255,.28)}
+.vlist.pos li::before{color:#6DEEA8}.vlist.neg li::before{color:#FFAA7A}
+.verdict-final{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);font-size:.88rem;color:rgba(255,255,255,.80);line-height:1.75;font-style:italic}
+
+/* ── RISK TABLE ─────────────────────────── */
+.risk-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:10px;white-space:nowrap;
+}
+.rp-high{background:#FEE2E2;color:#991B1B}
+.rp-med{background:#FEF3C7;color:#92400E}
+.rp-low{background:#D1FAE5;color:#065F46}
+
+/* ── STORY TABLE SPECIAL ────────────────── */
+.confirm-yes{color:var(--green);font-weight:700;font-size:.9rem}
+.confirm-watch{color:var(--amber);font-weight:700;font-size:.9rem}
+
+/* ── SPACER ─────────────────────────────── */
+.sp{height:16px}.sp8{height:8px}
+
+/* ── HOOK BANNER ────────────────────────── */
+.hook{
+  background:linear-gradient(90deg,#162D52 0%,#1F3864 100%);
+  border-bottom:3px solid #F0C040;
+  padding:13px 40px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  flex-shrink:0;
+}
+.hook-icon{font-size:1.1rem;flex-shrink:0}
+.hook-text{
+  font-size:.895rem;color:rgba(255,255,255,.92);
+  text-align:center;line-height:1.4;
+}
+.hook-text strong{color:#F0C040;font-weight:700}
+
+/* ── BREAK BOX ───────────────────────────── */
+.break-box{
+  background:var(--white);border-radius:var(--r);
+  box-shadow:var(--sh);overflow:hidden;margin-top:16px;
+}
+.break-box-head{
+  background:#1a2535;padding:14px 20px;
+  display:flex;align-items:center;gap:10px;
+}
+.break-box-head span{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.6)}
+.break-box-head strong{font-size:.95rem;font-weight:700;color:#fff}
+.break-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.break-item{
+  padding:16px 18px;border-right:1px solid var(--gl);border-bottom:1px solid var(--gl);
+}
+.break-item:last-child{border-right:none}
+.break-trigger{font-size:.78rem;font-weight:700;color:#c0392b;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.break-trigger::before{content:"🔴";font-size:.7rem}
+.break-note{font-size:.78rem;color:var(--gm);line-height:1.5}
+
+/* ── CCC MINI ────────────────────────────── */
+.ccc-strip{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;
+  align-items:center;gap:0;
+  background:var(--white);border-radius:var(--r);box-shadow:var(--sh);
+  overflow:hidden;
+}
+.ccc-cell{padding:14px 16px;text-align:center}
+.ccc-cell-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--gm);font-weight:600;margin-bottom:4px}
+.ccc-cell-val{font-size:1.45rem;font-weight:700;color:var(--navy);line-height:1}
+.ccc-cell-sub{font-size:.72rem;color:var(--gm);margin-top:3px}
+.ccc-cell-delta{font-size:.68rem;font-weight:700;margin-top:5px}
+.ccc-op{font-size:1.5rem;color:var(--gm);text-align:center;padding:0 4px;font-weight:300}
+.ccc-cell.result{background:var(--navy)}
+.ccc-cell.result .ccc-cell-lbl{color:rgba(255,255,255,.55)}
+.ccc-cell.result .ccc-cell-val{color:#fff}
+.ccc-cell.result .ccc-cell-sub{color:rgba(255,255,255,.45)}
+.ccc-cell.result .ccc-cell-delta{color:#6DEEA8}
+
+/* ── FOOTER ─────────────────────────────── */
+footer{
+  background:var(--white);border-top:1px solid var(--gl);
+  text-align:center;font-size:.72rem;color:var(--gm);
+  padding:16px 24px;line-height:1.7;flex-shrink:0;
+}
+footer strong{color:var(--gd)}
+footer a{color:var(--blue);text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-left">
+      <span class="hero-badge">CFO &amp; PE Quality Review · 2025</span>
+      <h1>Diagnostyka S.A.</h1>
+      <div class="hero-sub">Silny biznes gotówkowy z długoterminową fosą demograficzną i strukturalną skalą sieci. Kluczowe pytanie CFO: czy wzrost utrzyma efektywność operacyjną.</div>
+      <div class="hero-meta">
+        <span><strong>Rok:</strong> 2025 vs 2024</span>
+        <span><strong>Waluta:</strong> PLN tys.</span>
+        <span><strong>Źródło:</strong> Skonsolidowane SF Diagnostyka S.A.</span>
+      </div>
+    </div>
+    <div class="hero-verdict">
+      <div class="hero-verdict-lbl">Werdykt CFO</div>
+      <div class="hero-verdict-val">Silna generacja gotówki.<br>Monitorować presję kosztową.</div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-lbl">CFO Operacyjny</div>
+    <div class="kpi-val">551,8 mln</div>
+    <div class="kpi-sub">PLN · 2025</div>
+    <div class="kpi-delta">↑ +32,8% YoY</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">CCR — Jakość zysku</div>
+    <div class="kpi-val">2,11x</div>
+    <div class="kpi-sub">CFO / Zysk netto</div>
+    <div class="kpi-delta">↑ z 1,79x w 2024</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">CFO Margin</div>
+    <div class="kpi-val">22,9%</div>
+    <div class="kpi-sub">CFO / Przychody</div>
+    <div class="kpi-delta">↑ z 21,3% w 2024</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">DSO — Cykl należności</div>
+    <div class="kpi-val">39 dni</div>
+    <div class="kpi-sub">Należności / Rev × 365</div>
+    <div class="kpi-delta">↓ z 42 dni w 2024</div>
+  </div>
+</div>
+
+<!-- ═══════════ HOOK BANNER ═══════════ -->
+<div class="hook">
+  <span class="hook-icon">💡</span>
+  <div class="hook-text">
+    Na każdą <strong>1 zł zysku</strong> spółka generuje <strong>2,11 zł gotówki operacyjnej</strong> — to jest klucz tej historii.
+  </div>
+</div>
+
+<!-- ═══════════ NAV BAR ═══════════ -->
+<div class="nav-wrap">
+  <div class="nav-inner" role="tablist">
+    <button class="nav-btn active" data-tab="snapshot" role="tab" aria-selected="true">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Snapshot</span>
+      <span class="nav-tag tag-n">Overview</span>
+    </button>
+    <button class="nav-btn" data-tab="cashflow" role="tab" aria-selected="false">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Cash Flow</span>
+      <span class="nav-tag tag-g">Mocny</span>
+    </button>
+    <button class="nav-btn" data-tab="liquidity" role="tab" aria-selected="false">
+      <span class="nav-icon">⚖️</span>
+      <span class="nav-label">Płynność</span>
+      <span class="nav-tag tag-a">Paradoks</span>
+    </button>
+    <button class="nav-btn" data-tab="profitability" role="tab" aria-selected="false">
+      <span class="nav-icon">📉</span>
+      <span class="nav-label">Rentowność</span>
+      <span class="nav-tag tag-a">Presja</span>
+    </button>
+    <button class="nav-btn" data-tab="debt" role="tab" aria-selected="false">
+      <span class="nav-icon">🏦</span>
+      <span class="nav-label">Zadłużenie</span>
+      <span class="nav-tag tag-a">Kontrolowane</span>
+    </button>
+    <button class="nav-btn" data-tab="risks" role="tab" aria-selected="false">
+      <span class="nav-icon">🚦</span>
+      <span class="nav-label">Ryzyka</span>
+      <span class="nav-tag tag-a">5 flag</span>
+    </button>
+    <button class="nav-btn" data-tab="verdict" role="tab" aria-selected="false">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-label">Werdykt</span>
+      <span class="nav-tag tag-g">CFO</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+
+  <!-- ── SNAPSHOT ── -->
+  <div class="section active" id="tab-snapshot" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Narracja inwestycyjna a rzeczywistość CFO</div>
+      <div class="sec-desc">Weryfikacja tez inwestycyjnych twardymi danymi finansowymi. CFO sprawdza, czy strategiczna historia przekłada się na realne przepływy gotówki.</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%">Narracja inwestycyjna</th>
+            <th style="width:38%">Co widzi CFO</th>
+            <th style="width:15%">Dane</th>
+            <th style="width:17%">Ocena</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tr-good">
+            <td>Silna fosa: skala sieci, marka, bariery wejścia</td>
+            <td>CCR=2,11x, DSO spada, model gotówkowy stabilny — fosa generuje realną gotówkę</td>
+            <td>CCR 2,11x</td>
+            <td><span class="confirm-yes">✓ Potwierdzona</span></td>
+          </tr>
+          <tr class="tr-good">
+            <td>Wbudowany wzrost demograficzny — starzenie się Polaków</td>
+            <td>Przychody +23,6% YoY, CFO +32,8% — wzrost wyraźnie ponad rynek i gotówkowy</td>
+            <td>Rev +23,6%</td>
+            <td><span class="confirm-yes">✓ Potwierdzona</span></td>
+          </tr>
+          <tr class="tr-warn">
+            <td>Przewaga kosztowa dzięki skali i centralizacji</td>
+            <td>Koszty pracownicze stabilne (38% rev.), ale usługi obce rosną szybciej niż sprzedaż</td>
+            <td>Usługi +38%</td>
+            <td><span class="confirm-watch">⚠ Obserwować</span></td>
+          </tr>
+          <tr class="tr-good">
+            <td>Odporność na cykle — popyt nieodkładalny</td>
+            <td>CFO rośnie szybciej niż przychody — powtarzalność cash-flow potwierdzona</td>
+            <td>CFO +32,8%</td>
+            <td><span class="confirm-yes">✓ Potwierdzona</span></td>
+          </tr>
+          <tr class="tr-good">
+            <td>Aktywna konsolidacja rynku (16 przejęć w 2025)</td>
+            <td>CAPEX ≈ amortyzacja; zrównoważony model reinwestycji; leasing obciąża bilans</td>
+            <td>CAPEX 205 mln</td>
+            <td><span class="confirm-yes">✓ Potwierdzona</span></td>
+          </tr>
+          <tr class="tr-good">
+            <td>Ekspansja diagnostyki obrazowej — wyższe marże</td>
+            <td>EBITDA +17% YoY — wzrost nominału, lecz marże lekko spadają</td>
+            <td>EBITDA +17%</td>
+            <td><span class="confirm-yes">✓ Potwierdzona</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sp"></div>
+
+    <div class="grid-3">
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="card-t">Wzrost (YoY 2025)</div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>CFO</strong><span>+32,8%</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:82%;background:var(--green)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>Przychody</strong><span>+23,6%</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:59%;background:var(--blue)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>EBIT</strong><span>+13,2%</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:33%;background:var(--amber)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>Zysk netto</strong><span>+12,9%</span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:32%;background:var(--amber)"></div></div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <div class="card-t">Marże (2025 vs 2024)</div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>EBITDA</strong><span>24,3% <small style="color:var(--amber)">↓ z 25,6%</small></span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:61%;background:var(--green)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>EBIT</strong><span>15,9% <small style="color:var(--amber)">↓ z 17,3%</small></span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:40%;background:var(--amber)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>Netto</strong><span>10,9% <small style="color:var(--amber)">↓ z 11,9%</small></span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:27%;background:var(--amber)"></div></div>
+        </div>
+        <div class="pbar-row">
+          <div class="pbar-label"><strong>CFO Margin</strong><span>22,9% <small style="color:var(--green)">↑ z 21,3%</small></span></div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:57%;background:var(--green)"></div></div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--navy)">
+        <div class="card-t">Profil ryzyka</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+            <span>Płynność bilansowa</span><span class="badge br">Słaba</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+            <span>Płynność operacyjna</span><span class="badge bg">Mocna</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+            <span>Zadłużenie</span><span class="badge ba">Kontrolowane</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+            <span>Presja kosztowa</span><span class="badge ba">Wczesny sygnał</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+            <span>Jakość zysku (CCR)</span><span class="badge bg">Wysoka</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp8"></div>
+
+    <!-- CCC CASH ENGINE -->
+    <div style="margin-bottom:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gm)">Silnik gotówki — Cash Conversion Cycle</div>
+    <div class="ccc-strip">
+      <div class="ccc-cell">
+        <div class="ccc-cell-lbl">DSO — Należności</div>
+        <div class="ccc-cell-val">39</div>
+        <div class="ccc-cell-sub">dni do zapłaty od klientów</div>
+        <div class="ccc-cell-delta" style="color:var(--green)">↓ z 42 dni w 2024</div>
+      </div>
+      <div class="ccc-op">+</div>
+      <div class="ccc-cell">
+        <div class="ccc-cell-lbl">DIO — Zapasy</div>
+        <div class="ccc-cell-val">12</div>
+        <div class="ccc-cell-sub">dni (pomocniczo, usługi)</div>
+        <div class="ccc-cell-delta" style="color:var(--gm)">Niska waga w modelu</div>
+      </div>
+      <div class="ccc-op" style="font-size:1.2rem">−</div>
+      <div class="ccc-cell">
+        <div class="ccc-cell-lbl">DPO — Dostawcy</div>
+        <div class="ccc-cell-val">24</div>
+        <div class="ccc-cell-sub">dni na spłatę zobowiązań</div>
+        <div class="ccc-cell-delta" style="color:var(--gm)">Stabilny</div>
+      </div>
+      <div class="ccc-op">=</div>
+      <div class="ccc-cell result">
+        <div class="ccc-cell-lbl">CCC — Cykl gotówki</div>
+        <div class="ccc-cell-val">27</div>
+        <div class="ccc-cell-sub">dni do zwrotu gotówki</div>
+        <div class="ccc-cell-delta">↓ z 30 dni w 2024 ✓</div>
+      </div>
+    </div>
+
+    <div class="sp8"></div>
+    <div class="callout blue">
+      <strong>Wniosek Snapshot:</strong> Narracja inwestycyjna jest w dużej mierze potwierdzona twardymi danymi CFO. Jedyna teza wymagająca weryfikacji to utrzymanie przewagi kosztowej przy dalszym wzroście usług obcych. Na ten moment — obserwowany trend, nie flaga strukturalna.
+    </div>
+  </div>
+
+  <!-- ── CASH FLOW ── -->
+  <div class="section" id="tab-cashflow" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Cash-First Analysis</div>
+      <div class="sec-desc">CFO traktuje przepływy gotówki jako prawdziwą miarę jakości biznesu. Zysk netto jest punktem wyjścia — pytanie brzmi: ile z niego zostaje w gotówce?</div>
+    </div>
+
+    <div class="grid-auto" style="margin-bottom:16px">
+      <div class="stat-card g">
+        <div class="stat-lbl">CFO Operacyjny 2025</div>
+        <div class="stat-val">551 768</div>
+        <div class="stat-sub">tys. PLN</div>
+        <div class="stat-delta sd-up">↑ +32,8% YoY (vs +23,6% przychodów)</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">CCR — Cash Conversion Ratio</div>
+        <div class="stat-val">2,11x</div>
+        <div class="stat-sub">CFO / Zysk netto</div>
+        <div class="stat-delta sd-up">↑ z 1,79x w 2024</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">FCF — Free Cash Flow</div>
+        <div class="stat-val">346 987</div>
+        <div class="stat-sub">tys. PLN (CFO − CAPEX)</div>
+        <div class="stat-delta sd-up">↑ +22,7% YoY</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">CFS — Cash Flow Sales</div>
+        <div class="stat-val">358 067</div>
+        <div class="stat-sub">tys. PLN (EBIT − ΔKON)</div>
+        <div class="stat-delta sd-up">EBIT ≈ gotówka operacyjna</div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Miara</th><th>2025</th><th>2024</th><th>Zmiana</th><th>Ocena</th></tr></thead>
+          <tbody>
+            <tr><td>CFO (tys. PLN)</td><td>551 768</td><td>415 428</td><td>+32,8%</td><td><span class="badge bg">Bardzo dobre</span></td></tr>
+            <tr><td>Zysk netto (tys. PLN)</td><td>261 874</td><td>231 959</td><td>+12,9%</td><td><span class="badge bn">Punkt odniesienia</span></td></tr>
+            <tr class="tr-hl"><td>CCR</td><td>2,11x</td><td>1,79x</td><td>+0,32x</td><td><span class="badge bg">Rosnąca jakość</span></td></tr>
+            <tr><td>CFO Margin</td><td>22,9%</td><td>21,3%</td><td>+1,6 pp</td><td><span class="badge bg">Poprawa</span></td></tr>
+            <tr><td>FCF (tys. PLN)</td><td>346 987</td><td>282 719</td><td>+22,7%</td><td><span class="badge bg">Solidny</span></td></tr>
+            <tr><td>Amortyzacja (tys. PLN)</td><td>201 794</td><td>161 525</td><td>+24,9%</td><td><span class="badge bn">Napędza CCR</span></td></tr>
+            <tr><td>CAPEX (tys. PLN)</td><td>204 781</td><td>132 709</td><td>+54,3%</td><td><span class="badge ba">≈ Amortyzacja</span></td></tr>
+            <tr><td>Zmiana KON (tys. PLN)</td><td>−2 566</td><td>−17 659</td><td>Poprawa</td><td><span class="badge bg">Neutralny</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="edu">
+          <div class="edu-t">📘 Nauka CFO — co to jest CCR?</div>
+          CCR = CFO / Zysk netto. Mierzy, ile gotówki operacyjnej przypada na każdą złotówkę zysku netto.
+          <ul style="margin-top:8px">
+            <li><strong>CCR &gt; 1</strong> → gotówka przewyższa zysk — pozytywny sygnał</li>
+            <li><strong>CCR = 2,11x</strong> → za każde 1 PLN zysku netto spółka generuje 2,11 PLN CFO</li>
+            <li>Główne źródło: amortyzacja 202 mln PLN — koszt bez wypływu gotówki</li>
+            <li>Kapitał obrotowy: neutralny — KON rośnie minimalnie</li>
+            <li>CAPEX ≈ amortyzacja → model zrównoważonej reinwestycji</li>
+          </ul>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #C5D5EE">
+            <div class="edu-t" style="color:#c0392b">⚠ Ważne: CCR &gt;1 NIE zawsze oznacza „lepiej"</div>
+            Trzeba sprawdzić <strong>dlaczego</strong> CCR jest wysoki. Możliwe przyczyny:
+            <ul style="margin-top:6px">
+              <li><strong style="color:var(--green)">Zdrowe:</strong> amortyzacja + krótki cykl gotówki + model biznesowy → <em>tu jest Diagnostyka</em></li>
+              <li><strong style="color:var(--amber)">Uwaga:</strong> opóźnianie płatności dostawcom → sztuczne pompowanie gotówki</li>
+              <li><strong style="color:#c0392b">Alarm:</strong> CFO rosło przez wyprzedaż zapasów lub aktywów → nietrwałe</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sp8"></div>
+        <div class="callout green">
+          <strong>Kluczowy insight:</strong> Wzrost Diagnostyki nie jest „papierowy". CFO rośnie szybciej niż przychody — to najlepszy możliwy układ gotówkowy dla inwestora długoterminowego.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LIQUIDITY ── -->
+  <div class="section" id="tab-liquidity" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Paradoks płynności</div>
+      <div class="sec-desc">Wskaźniki bilansowe sygnalizują słabą płynność. Dane operacyjne pokazują coś zupełnie przeciwnego. To najważniejszy niuans analizy CFO dla Diagnostyki.</div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:16px">
+      <div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Wskaźnik płynności</th><th>2025</th><th>2024</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr class="tr-bad"><td>Current Ratio</td><td>0,73</td><td>0,83</td><td><span class="badge br">Poniżej 1 ↓</span></td></tr>
+              <tr class="tr-bad"><td>Quick Ratio</td><td>0,59</td><td>0,71</td><td><span class="badge br">Poniżej 1 ↓</span></td></tr>
+              <tr class="tr-bad"><td>Cash Ratio</td><td>0,04</td><td>0,10</td><td><span class="badge br">Bardzo nisko ↓</span></td></tr>
+              <tr class="tr-good"><td>DSO (dni)</td><td>39</td><td>42</td><td><span class="badge bg">Poprawia się ↓</span></td></tr>
+              <tr class="tr-good"><td>DPO (dni)</td><td>24</td><td>22</td><td><span class="badge bg">Stabilny</span></td></tr>
+              <tr class="tr-good"><td>CCC — cykl gotówki (dni)</td><td>27</td><td>30</td><td><span class="badge bg">Krótki ↓</span></td></tr>
+              <tr><td>Środki pieniężne (tys. PLN)</td><td>18 424</td><td>40 518</td><td><span class="badge ba">Spada</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="border-left:4px solid #c0392b">
+          <div class="card-t" style="color:#c0392b">Płynność bilansowa — co widać</div>
+          <p style="font-size:.855rem;color:var(--gd);line-height:1.6">Current Ratio 0,73 oznacza, że zobowiązania krótkoterminowe (507 mln PLN) przekraczają aktywa obrotowe (369 mln PLN). Tradycyjnie — sygnał ryzyka płynności.</p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--green)">
+          <div class="card-t" style="color:var(--green)">Płynność operacyjna — co naprawdę się dzieje</div>
+          <p style="font-size:.855rem;color:var(--gd);line-height:1.6">Diagnostyka generuje <strong>552 mln PLN CFO rocznie</strong>. Pacjenci płacą natychmiast. DSO=39 dni. CCC=27 dni. Gotówka wraca szybko i regularnie — to prawdziwy bufor płynności.</p>
+        </div>
+        <div class="callout amber">
+          CFO nie pyta <em>„ile masz dziś gotówki"</em>, lecz <strong>„ile wygenerujesz jej jutro"</strong>. Dla Diagnostyki odpowiedź jest jednoznaczna.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Kiedy niska płynność bilansowa staje się realnym ryzykiem?</div>
+      <div class="tbl-wrap" style="box-shadow:none">
+        <table style="box-shadow:none">
+          <thead><tr><th>Scenariusz ryzyka</th><th>Prawdopodobieństwo</th><th>Komentarz CFO</th></tr></thead>
+          <tbody>
+            <tr><td>Opóźnienia płatności NFZ / B2B</td><td><span class="badge ba">Umiarkowane</span></td><td>DSO=39 dni działa jako wczesny wskaźnik — wzrost powyżej 55 dni byłby sygnałem alarmowym</td></tr>
+            <tr><td>Ograniczenie linii kredytowych przez banki</td><td><span class="badge bg">Niskie</span></td><td>Interest Coverage 5,56x oraz silny CFO zapewniają komfort kredytowy</td></tr>
+            <tr><td>Nagły wzrost zobowiązań krótkoterminowych</td><td><span class="badge bg">Niskie</span></td><td>Model biznesowy jest stabilny; brak sezonowych skoków zobowiązań</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROFITABILITY ── -->
+  <div class="section" id="tab-profitability" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Rentowność i presja kosztowa</div>
+      <div class="sec-desc">Przychody rosną dynamicznie (+23,6%), lecz marże wykazują umiarkowaną erozję. To nie alarm — to wczesny sygnał, który wymaga monitorowania w 2026.</div>
+      <div style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:#FEF3E2;border:1px solid #F0C070;border-radius:6px;padding:7px 14px">
+        <span style="font-size:.95rem">📐</span>
+        <span style="font-size:.84rem;color:#7A4200"><strong>Zasada CFO:</strong> Problem nie leży w <em>poziomie</em> marży — leży w jej <em>kierunku</em>. CFO patrzy na trend, nie na wartość absolutną.</span>
+      </div>
+    </div>
+
+    <div class="grid-auto" style="margin-bottom:16px">
+      <div class="stat-card a">
+        <div class="stat-lbl">EBIT Margin 2025</div>
+        <div class="stat-val">15,9%</div>
+        <div class="stat-sub">Marża operacyjna</div>
+        <div class="stat-delta sd-down">↓ z 17,3% w 2024 (−1,5 pp)</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-lbl">EBITDA Margin 2025</div>
+        <div class="stat-val">24,3%</div>
+        <div class="stat-sub">EBITDA / Przychody</div>
+        <div class="stat-delta sd-down">↓ z 25,6% w 2024 (−1,4 pp)</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-lbl">Usługi obce / Przychody</div>
+        <div class="stat-val">14,8%</div>
+        <div class="stat-sub">Główny driver erozji marży</div>
+        <div class="stat-delta sd-down">↑ z 13,3% w 2024 (+1,5 pp)</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">Marża netto</div>
+        <div class="stat-val">10,9%</div>
+        <div class="stat-sub">Zysk netto / Przychody</div>
+        <div class="stat-delta sd-down">↓ z 11,9% w 2024 (−1,0 pp)</div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Kategoria kosztowa</th><th>2025 tys. PLN</th><th>% Rev 2025</th><th>% Rev 2024</th><th>Zmiana</th></tr></thead>
+          <tbody>
+            <tr><td>Koszty pracownicze</td><td>917 838</td><td>38,1%</td><td>38,7%</td><td><span class="badge bg">−0,6 pp ↓</span></td></tr>
+            <tr><td>Materiały i energia</td><td>499 765</td><td>20,7%</td><td>21,1%</td><td><span class="badge bg">−0,4 pp ↓</span></td></tr>
+            <tr class="tr-warn"><td>Usługi obce</td><td>357 058</td><td>14,8%</td><td>13,3%</td><td><span class="badge br">+1,5 pp ↑</span></td></tr>
+            <tr class="tr-sub"><td>↳ Zakup badań zewnętrznych</td><td>185 641</td><td>7,7%</td><td>5,9%</td><td><span class="badge br">+60,7% YoY</span></td></tr>
+            <tr class="tr-sub"><td>↳ Konserwacja i naprawy</td><td>69 448</td><td>2,9%</td><td>2,7%</td><td><span class="badge ba">+33% YoY</span></td></tr>
+            <tr class="tr-sub"><td>↳ Usługi IT</td><td>29 606</td><td>1,2%</td><td>1,3%</td><td><span class="badge bg">+20,8% YoY</span></td></tr>
+            <tr><td>Amortyzacja</td><td>201 794</td><td>8,4%</td><td>8,3%</td><td><span class="badge bn">Stabilna</span></td></tr>
+            <tr class="tr-hl"><td>RAZEM koszty operacyjne</td><td>2 041 532</td><td>84,7%</td><td>83,9%</td><td><span class="badge ba">+0,8 pp ↑</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="edu">
+          <div class="edu-t">📘 Etapy presji kosztowej — gdzie jest Diagnostyka?</div>
+          <ul>
+            <li><strong>Etap 1:</strong> Koszty rosną proporcjonalnie — zdrowy wzrost ✓</li>
+            <li><strong style="color:var(--amber)">Etap 2 — tu jesteśmy ⚠️:</strong> Jeden koszt wyprzedza przychody</li>
+            <li><strong>Etap 3:</strong> Kilka kategorii przekracza dynamikę sprzedaży</li>
+            <li><strong>Etap 4:</strong> Utrata kontroli nad bazą kosztową 🔴</li>
+          </ul>
+        </div>
+        <div class="sp8"></div>
+        <div class="callout amber">
+          <strong>Kontekst:</strong> Spółka wyjaśnia wzrost usług obcych zakupem badań specjalistycznych zlecanych na zewnątrz — bezpośrednio powiązanym ze wzrostem sprzedaży. To koszt skali, nie systemowy problem. Kluczowy test: dane za 2026.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DEBT ── -->
+  <div class="section" id="tab-debt" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Zadłużenie i efektywność kapitału</div>
+      <div class="sec-desc">Dźwignia finansowa wysoka w ujęciu bilansowym, ale bezpiecznie obsługiwana. Dług ma charakter operacyjny — powiązany z infrastrukturą, nie spekulacyjny.</div>
+    </div>
+
+    <div class="grid-auto" style="margin-bottom:16px">
+      <div class="stat-card a">
+        <div class="stat-lbl">Debt to Equity</div>
+        <div class="stat-val">2,78x</div>
+        <div class="stat-sub">Zobowiązania / Kapitał własny</div>
+        <div class="stat-delta sd-up">↓ z 2,96x w 2024 (poprawia się)</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">Interest Coverage</div>
+        <div class="stat-val">5,56x</div>
+        <div class="stat-sub">EBIT / Koszty finansowe</div>
+        <div class="stat-delta sd-up">Bezpieczny próg: >3x ✓</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-lbl">Net Debt</div>
+        <div class="stat-val">1 062</div>
+        <div class="stat-sub">mln PLN (dług fin. − gotówka)</div>
+        <div class="stat-delta sd-down">Kredyt bankowy + leasing</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-lbl">Debt to Assets</div>
+        <div class="stat-val">0,74</div>
+        <div class="stat-sub">74% aktywów fin. zewnętrznie</div>
+        <div class="stat-delta sd-up">↓ z 0,75 w 2024</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Wskaźnik</th><th>2025</th><th>2024</th><th>Ocena</th></tr></thead>
+            <tbody>
+              <tr><td>Debt to Equity</td><td>2,78x</td><td>2,96x</td><td><span class="badge ba">Wysoka, ↓</span></td></tr>
+              <tr><td>Debt to Assets</td><td>0,74</td><td>0,75</td><td><span class="badge ba">Stabilne</span></td></tr>
+              <tr class="tr-hl"><td>Interest Coverage</td><td>5,56x</td><td>5,89x</td><td><span class="badge bg">Bezpieczne</span></td></tr>
+              <tr><td>ROA</td><td>12,7%</td><td>13,5%</td><td><span class="badge ba">Lekki spadek</span></td></tr>
+              <tr><td>ROE</td><td>47,9%</td><td>53,5%</td><td><span class="badge bg">Bardzo wysokie</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sp8"></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th colspan="2">Struktura długu finansowego 2025</th><th>tys. PLN</th></tr></thead>
+            <tbody>
+              <tr><td colspan="2">Kredyty i pożyczki (długoterminowe)</td><td>627 714</td></tr>
+              <tr><td colspan="2">Leasing finansowy (długoterminowy)</td><td>305 243</td></tr>
+              <tr><td colspan="2">Leasing finansowy (krótkoterminowy)</td><td>141 602</td></tr>
+              <tr><td colspan="2">Kredyty (krótkoterminowe)</td><td>6 085</td></tr>
+              <tr class="tr-hl"><td colspan="2">RAZEM dług finansowy</td><td>1 080 644</td></tr>
+              <tr><td colspan="2">Środki pieniężne</td><td>(18 424)</td></tr>
+              <tr class="tr-hl"><td colspan="2">Dług netto</td><td>1 062 220</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="card-t">Charakter zadłużenia</div>
+          <p style="font-size:.855rem;color:var(--gd);line-height:1.65;margin-bottom:10px">Dług Diagnostyki ma w przeważającej mierze charakter <strong>operacyjny</strong>:</p>
+          <ul style="font-size:.835rem;color:var(--gd);padding-left:16px;line-height:1.8">
+            <li>Kredyty bankowe → finansowanie akwizycji sieci</li>
+            <li>Leasing → sprzęt medyczny, laboratoria, IT</li>
+            <li>Brak długu spekulacyjnego lub finansowego (obligacje)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-t">ROE vs ROA — wyjaśnienie</div>
+          <p style="font-size:.845rem;color:var(--gd);line-height:1.65">ROE 47,9% jest bardzo wysokie, ale częściowo wynika z dźwigni finansowej. ROA 12,7% (i spada) pokazuje, że aktywa rosną szybciej niż zyski — typowy efekt fazy intensywnych przejęć i reinwestycji.</p>
+        </div>
+        <div class="callout blue">
+          <strong>Wniosek CFO:</strong> Nie każdy wysoki dług jest problemem. Problemem jest dług, którego nie można obsłużyć. Interest Coverage 5,56x wskazuje jednoznacznie, że Diagnostyka jest po bezpiecznej stronie tej granicy.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RISKS ── -->
+  <div class="section" id="tab-risks" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">CFO Red Flags — Mapa ryzyk</div>
+      <div class="sec-desc">Pięć zidentyfikowanych obszarów ryzyka w kolejności priorytetu. Żadne nie ma charakteru kryzysowego — wszystkie wymagają aktywnego monitorowania.</div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-bottom:20px">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">Ryzyko</th>
+            <th style="width:14%">Dane 2025</th>
+            <th style="width:14%">Benchmark</th>
+            <th style="width:36%">Interpretacja CFO</th>
+            <th style="width:10%">Priorytet</th>
+            <th style="width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tr-warn">
+            <td>Spadek marży operacyjnej</td>
+            <td>EBIT 15,9%</td>
+            <td>Rok wcześniej: 17,3%</td>
+            <td>Przychody rosną szybciej niż zysk operacyjny. Kierunek negatywny, skala umiarkowana. Monitorować kolejne kwartały.</td>
+            <td><span class="risk-pill rp-high">Wysoki</span></td>
+            <td><span class="badge ba">Obserwować</span></td>
+          </tr>
+          <tr class="tr-warn">
+            <td>Usługi obce &gt; wzrost przychodów</td>
+            <td>+38% YoY</td>
+            <td>Przychody: +23,6%</td>
+            <td>Głównie zakup badań zleconych zewnętrznie. Spółka tłumaczy skalą działalności. Jeśli udział wzrośnie w 2026 — problem strukturalny.</td>
+            <td><span class="risk-pill rp-high">Wysoki</span></td>
+            <td><span class="badge ba">Monitorować</span></td>
+          </tr>
+          <tr>
+            <td>Current Ratio poniżej 1</td>
+            <td>CR: 0,73</td>
+            <td>Komfort: &gt;1,5</td>
+            <td>Bilansowo słabe. Kompensowane CCC=27 dni i CFO=552 mln PLN. Ryzyko realne tylko przy jednoczesnym pogorszeniu warunków kredytowych.</td>
+            <td><span class="risk-pill rp-med">Średni</span></td>
+            <td><span class="badge ba">Obserwować</span></td>
+          </tr>
+          <tr>
+            <td>Debt to Equity powyżej 2x</td>
+            <td>D/E: 2,78x</td>
+            <td>Komfort: &lt;2,0x</td>
+            <td>Wysoka dźwignia z tendencją spadkową. Dług operacyjny + leasing. Kluczowy element: harmonogram refinansowania kredytów bankowych.</td>
+            <td><span class="risk-pill rp-med">Średni</span></td>
+            <td><span class="badge ba">Monitorować</span></td>
+          </tr>
+          <tr>
+            <td>Spadek ROA i ROE</td>
+            <td>ROA: 12,7%</td>
+            <td>Rok wcześniej: 13,5%</td>
+            <td>Aktywa rosną szybciej niż zyski — typowy efekt fazy intensywnych przejęć M&A. Oczekiwana normalizacja po integracji.</td>
+            <td><span class="risk-pill rp-low">Niski</span></td>
+            <td><span class="badge bn">Obserwować</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Data Requests — dane potrzebne do pełnej analizy CFO</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px">
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 AR aging (0–30 / 31–60 / 61–90 / 90+ dni)</div>
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 AP aging — warunki płatności dostawców</div>
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 Debt maturity schedule — harmonogram spłat</div>
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 Breakdown usług obcych (szczegółowy)</div>
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 CAPEX: utrzymaniowy vs rozwojowy</div>
+        <div style="background:var(--blue-pale);border:1px solid #C5D5EE;border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--gd)">📋 Koszty integracji M&amp;A (jednorazowe)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VERDICT ── -->
+  <div class="section" id="tab-verdict" role="tabpanel">
+    <div class="sec-head">
+      <div class="sec-title">Werdykt końcowy CFO</div>
+      <div class="sec-desc">Syntetyczna ocena jakości biznesu Diagnostyki S.A. z perspektywy zewnętrznego CFO i inwestora długoterminowego.</div>
+    </div>
+
+    <div class="verdict" style="margin-bottom:16px">
+      <div class="verdict-lbl">Final CFO Verdict · Diagnostyka S.A. · 2025</div>
+      <h2>Silny biznes gotówkowy.<br>Główne ryzyko: efektywność operacyjna, nie płynność.</h2>
+      <div class="verdict-grid">
+        <div>
+          <div class="vcol-t pos">✓ Mocne strony</div>
+          <ul class="vlist pos">
+            <li>CCR 2,11x — zysk przekształca się w gotówkę w wyjątkowo wysokim stopniu</li>
+            <li>CFO rośnie szybciej niż przychody (+32,8% vs +23,6%)</li>
+            <li>DSO spada z 42 do 39 dni — lepsza ściągalność należności</li>
+            <li>CFO Margin wzrosła do 22,9% — gotówkowość sprzedaży poprawia się</li>
+            <li>Interest Coverage 5,56x — dług obsługiwany bezpiecznie</li>
+            <li>Fosa demograficzna i skalowa potwierdzona danymi finansowymi</li>
+          </ul>
+        </div>
+        <div>
+          <div class="vcol-t neg">⚠ Obszary monitorowania</div>
+          <ul class="vlist neg">
+            <li>EBIT margin spada z 17,3% do 15,9% — kierunek negatywny</li>
+            <li>Usługi obce +38% YoY vs +23,6% przychodów — wczesny sygnał</li>
+            <li>Current Ratio 0,73 — słaba płynność bilansowa (model to kompensuje)</li>
+            <li>Debt to Equity 2,78x — wysoka dźwignia, choć malejąca</li>
+            <li>ROA i ROE w lekkim trendzie spadkowym — efekt fazy M&A</li>
+          </ul>
+        </div>
+      </div>
+      <div class="verdict-final">
+        Diagnostyka pozostaje bardzo solidnym biznesem gotówkowym z silnymi fundamentami strukturalnymi. Analiza CFO nie ujawnia problemów z generowaniem gotówki — ujawnia natomiast wczesny sygnał rosnącej presji operacyjnej. Kluczowe pytanie na 2026: czy spółka zdoła utrzymać lub poprawić marże przy kontynuacji dynamicznego wzrostu? To właśnie — a nie demografia ani fosa — będzie decydujące dla długoterminowej oceny jakości tego biznesu.
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-card g">
+        <div class="stat-lbl">Jakość zysku</div>
+        <div class="stat-val" style="font-size:1.2rem">Wysoka</div>
+        <div class="stat-sub">CCR 2,11x — zysk to gotówka</div>
+        <div class="stat-delta sd-up">✓ Bez zastrzeżeń</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-lbl">Efektywność kosztowa</div>
+        <div class="stat-val" style="font-size:1.2rem">Obserwować</div>
+        <div class="stat-sub">Etap 2 presji kosztowej</div>
+        <div class="stat-delta sd-down">Test w danych 2026</div>
+      </div>
+      <div class="stat-card g">
+        <div class="stat-lbl">Stabilność finansowa</div>
+        <div class="stat-val" style="font-size:1.2rem">Dobra</div>
+        <div class="stat-sub">Coverage 5,56x, FCF 347 mln</div>
+        <div class="stat-delta sd-up">✓ Pod kontrolą</div>
+      </div>
+    </div>
+
+    <!-- WHAT WOULD BREAK THIS STORY -->
+    <div class="break-box">
+      <div class="break-box-head">
+        <span style="font-size:1.1rem">🔬</span>
+        <div>
+          <div class="break-box-head span">Myślenie funduszu PE</div>
+          <strong class="break-box-head strong">Co złamałoby tę historię? — 4 sygnały alarmowe do obserwacji</strong>
+        </div>
+      </div>
+      <div class="break-grid">
+        <div class="break-item">
+          <div class="break-trigger">DSO przekracza 55 dni</div>
+          <div class="break-note">Oznaczałoby pogorszenie ściągalności należności — NFZ lub B2B zaczyna opóźniać płatności. Gotówka „utknęłaby" w bilansie zamiast wpłynąć jako CFO.</div>
+        </div>
+        <div class="break-item">
+          <div class="break-trigger">CCR spada poniżej 1,0x</div>
+          <div class="break-note">Oznaczałoby, że zysk netto jest wyższy niż CFO — zysk staje się „papierowy". Klasyczny sygnał ukrytych problemów z quality of earnings.</div>
+        </div>
+        <div class="break-item">
+          <div class="break-trigger">Usługi obce przekraczają 18% przychodów</div>
+          <div class="break-note">Obecne 14,8% → trend wzrostowy. Przy 18%+ presja byłaby strukturalna, nie przejściowa. Efekt skali przestaje działać w tej kategorii kosztowej.</div>
+        </div>
+        <div class="break-item">
+          <div class="break-trigger">CFO rośnie wolniej niż przychody</div>
+          <div class="break-note">Kluczowy test: CFO margin powinna być stabilna lub rosnąca. Jeśli w 2026 sprzedaż rośnie, a CFO stoi — gotówka zaczyna „uciekać" do kosztów lub kapitału obrotowego.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  Analityczna notatka CFO-style · Diagnostyka S.A. · Rok 2025 vs 2024 · Wszystkie liczby w <strong>tys. PLN</strong><br>
+  Źródło: Skonsolidowane Sprawozdanie Finansowe Diagnostyka S.A. za rok 2025 · Test spójności bilansu: ΔBilans = 0 PLN ✓<br>
+  Pliki źródłowe (Excel CFO Model, JSON, HTML) przechowywane w repozytorium: <strong>GitHub / Diagnostyka Plus</strong>
+</footer>
+
+<script>
+(function () {
+  var tabs = document.querySelectorAll('.nav-btn');
+  var panels = document.querySelectorAll('.section');
+
+  function activate(id) {
+    tabs.forEach(function (btn) {
+      var isActive = btn.dataset.tab === id;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    panels.forEach(function (panel) {
+      panel.classList.toggle('active', panel.id === 'tab-' + id);
+    });
+  }
+
+  tabs.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      activate(btn.dataset.tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Keyboard: arrow keys for nav
+  var navInner = document.querySelector('.nav-inner');
+  navInner.addEventListener('keydown', function (e) {
+    var btns = Array.from(tabs);
+    var cur = btns.indexOf(document.activeElement);
+    if (cur === -1) return;
+    if (e.key === 'ArrowRight') { btns[(cur + 1) % btns.length].focus(); e.preventDefault(); }
+    if (e.key === 'ArrowLeft')  { btns[(cur - 1 + btns.length) % btns.length].focus(); e.preventDefault(); }
+    if (e.key === 'Enter' || e.key === ' ') { activate(document.activeElement.dataset.tab); e.preventDefault(); }
+  });
+})();
+</script>
+</body>
+</html>

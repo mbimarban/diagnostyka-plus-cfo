@@ -1,0 +1,231 @@
+{
+  "company": "Diagnostyka S.A.",
+  "report_type": "CFO & PE Quality Review",
+  "language": "pl",
+  "periods": [
+    "2025",
+    "2024"
+  ],
+  "currency": "PLN thousands",
+  "business_story": {
+    "core_thesis": "Diagnostyka to infrastruktura medyczna z wbudowanym wzrostem demograficznym, silną skalą i wysoką generacją gotówki.",
+    "youtube_narrative": [
+      "silna fosa ekonomiczna",
+      "lider rynku diagnostyki laboratoryjnej",
+      "korzyści skali",
+      "trend demograficzny",
+      "konsolidacja rynku",
+      "rosnący popyt na diagnostykę laboratoryjną i obrazową"
+    ],
+    "cfo_angle": "Kluczowe pytanie CFO: czy wzrost zamienia się w gotówkę oraz czy marże nie są zjadane przez koszty.",
+    "storytelling_tone": "Spokojny, profesjonalny, CFO-style. Bez alarmizmu, ale z jasnym wskazaniem ryzyk."
+  },
+  "financials": {
+    "2025": {
+      "revenue": 2410467,
+      "ebit": 382701,
+      "net_profit": 261874,
+      "cfo": 551768,
+      "ebitda": 584495,
+      "depreciation": 201794,
+      "current_assets": 368688,
+      "current_liabilities": 506763,
+      "cash": 18424,
+      "receivables": 258281,
+      "inventory": 68737,
+      "trade_payables": 134960,
+      "total_assets": 2069538,
+      "total_liabilities": 1522346,
+      "equity": 547192,
+      "capex": 204781,
+      "financial_costs": 68860,
+      "foreign_services": 357058,
+      "employee_costs": 917838,
+      "materials_energy": 499765
+    },
+    "2024": {
+      "revenue": 1950147,
+      "ebit": 338011,
+      "net_profit": 231959,
+      "cfo": 415428,
+      "ebitda": 499536,
+      "depreciation": 161525,
+      "current_assets": 327023,
+      "current_liabilities": 396018,
+      "cash": 40518,
+      "receivables": 222750,
+      "inventory": 45438,
+      "trade_payables": 100764,
+      "total_assets": 1718019,
+      "total_liabilities": 1284520,
+      "equity": 433499,
+      "capex": 132709,
+      "financial_costs": 57367,
+      "foreign_services": 258806,
+      "employee_costs": 754966,
+      "materials_energy": 411825
+    }
+  },
+  "balance_sheet_integrity_test": {
+    "2025": {
+      "total_assets": 2069538,
+      "liabilities_plus_equity": 2069538,
+      "difference": 0,
+      "status": "OK"
+    },
+    "2024": {
+      "total_assets": 1718019,
+      "liabilities_plus_equity": 1718019,
+      "difference": 0,
+      "status": "OK"
+    }
+  },
+  "ratios": {
+    "2025": {
+      "current_ratio": 0.73,
+      "quick_ratio": 0.59,
+      "cash_ratio": 0.04,
+      "debt_to_equity": 2.78,
+      "debt_to_assets": 0.74,
+      "net_margin": 0.1086,
+      "ebit_margin": 0.1588,
+      "ebitda_margin": 0.2425,
+      "roa": 0.1265,
+      "roe": 0.4786,
+      "dso_days": 39,
+      "ccr": 2.11,
+      "cfo_margin": 0.2289,
+      "interest_coverage": 5.56,
+      "cash_flow_sales": 358067
+    },
+    "2024": {
+      "current_ratio": 0.83,
+      "quick_ratio": 0.71,
+      "cash_ratio": 0.1,
+      "debt_to_equity": 2.96,
+      "debt_to_assets": 0.75,
+      "net_margin": 0.1189,
+      "ebit_margin": 0.1733,
+      "ebitda_margin": 0.2562,
+      "roa": 0.135,
+      "roe": 0.535,
+      "dso_days": 42,
+      "ccr": 1.79,
+      "cfo_margin": 0.213,
+      "interest_coverage": 5.89
+    }
+  },
+  "trend_analysis": {
+    "2025_vs_2024": {
+      "revenue_growth": 0.236,
+      "cfo_growth": 0.3282,
+      "net_profit_growth": 0.129,
+      "ebit_growth": 0.1322,
+      "ebitda_growth": 0.1701,
+      "foreign_services_growth": 0.3796,
+      "employee_costs_growth": 0.2157,
+      "materials_energy_growth": 0.2135
+    }
+  },
+  "vertical_analysis": {
+    "2025": {
+      "employee_costs_to_revenue": 0.3807,
+      "materials_energy_to_revenue": 0.2073,
+      "foreign_services_to_revenue": 0.1481,
+      "ebit_to_revenue": 0.1588,
+      "ebitda_to_revenue": 0.2425,
+      "net_profit_to_revenue": 0.1086
+    },
+    "2024": {
+      "employee_costs_to_revenue": 0.3871,
+      "materials_energy_to_revenue": 0.2111,
+      "foreign_services_to_revenue": 0.1327,
+      "ebit_to_revenue": 0.1733,
+      "ebitda_to_revenue": 0.2562,
+      "net_profit_to_revenue": 0.1189
+    }
+  },
+  "cfo_conclusions": {
+    "main_message": "Diagnostyka nie ma problemu z generowaniem gotówki. Kluczowym wyzwaniem jest utrzymanie efektywności operacyjnej i kontrola kosztów.",
+    "cash_first_snapshot": "CFO znacząco przewyższa zysk netto, a CCR wzrósł z 1,79x do 2,11x. To wskazuje na wysoką jakość zysku i silną generację gotówki operacyjnej.",
+    "liquidity_view": "Bilansowo płynność wygląda słabo, ale operacyjnie spółka generuje bardzo mocną gotówkę. To różnica między płynnością księgową a płynnością operacyjną.",
+    "profitability_view": "Marże spadają umiarkowanie, nie dramatycznie. Jest to jednak sygnał kierunkowy wymagający monitorowania.",
+    "cost_view": "Usługi obce rosną szybciej niż przychody, głównie przez zakup badań i usług branżowych powiązany ze skalą działalności. To nie jest alarm, ale obszar do monitorowania.",
+    "debt_view": "Zadłużenie jest wysokie względem kapitału własnego, ale obecnie obsługiwane komfortowo dzięki wysokiemu CFO i interest coverage powyżej 5x.",
+    "final_verdict": "Diagnostyka pozostaje bardzo solidnym biznesem gotówkowym z silnymi fundamentami strukturalnymi. Nie widzimy problemu z generowaniem gotówki, ale widzimy początek wyzwania operacyjnego: utrzymać marże i efektywność kosztową w fazie dalszego wzrostu."
+  },
+  "positives": [
+    "CFO znacząco przewyższa zysk netto",
+    "CCR wzrósł z 1,79x do 2,11x",
+    "DSO spadło z 42 do 39 dni",
+    "CFO margin wzrosła z 21,3% do 22,9%",
+    "Interest coverage powyżej 5x",
+    "Silna fosa biznesowa: skala, sieć placówek, demografia, konsolidacja rynku"
+  ],
+  "risks": [
+    {
+      "risk": "Current Ratio poniżej 1",
+      "interpretation": "Słaba płynność bilansowa, ale łagodzona przez silną płynność operacyjną.",
+      "priority": "medium"
+    },
+    {
+      "risk": "Debt to Equity powyżej 2",
+      "interpretation": "Wysoka dźwignia finansowa; wymaga monitorowania kosztu długu i harmonogramu spłat.",
+      "priority": "medium"
+    },
+    {
+      "risk": "Spadek EBIT margin",
+      "interpretation": "Presja kosztowa ogranicza skalowanie zysku operacyjnego.",
+      "priority": "medium"
+    },
+    {
+      "risk": "Spadek EBITDA margin",
+      "interpretation": "Efektywność operacyjna lekko się pogarsza mimo wzrostu przychodów.",
+      "priority": "medium"
+    },
+    {
+      "risk": "Usługi obce rosną szybciej niż przychody",
+      "interpretation": "Nie jest to jeszcze alarm, ale może ograniczać przyszłą ekspansję marż.",
+      "priority": "monitor"
+    }
+  ],
+  "data_requests_cfo": [
+    "AR aging 0-30 / 31-60 / 61-90 / 90+",
+    "AP aging",
+    "Inventory aging / obsolescence",
+    "Debt maturity schedule",
+    "Breakdown usług obcych",
+    "CAPEX breakdown: utrzymaniowy vs rozwojowy",
+    "M&A integration costs",
+    "Deferred revenue roll-forward, jeżeli istotne"
+  ],
+  "html_report_guidance": {
+    "title": "Diagnostyka S.A. — CFO & PE Quality Review",
+    "subtitle": "Silny biznes gotówkowy z długoterminową fosą, ale z rosnącym znaczeniem kontroli kosztów.",
+    "style": {
+      "tone": "executive, calm, analytical",
+      "colors": [
+        "navy",
+        "white",
+        "grey",
+        "green accents",
+        "amber/red risk accents"
+      ],
+      "format": "single-file HTML with embedded CSS",
+      "charts": "do not include charts",
+      "tables": "use clear tables and KPI cards"
+    },
+    "sections": [
+      "Hero section",
+      "Executive CFO Snapshot",
+      "Investment Story vs CFO Reality",
+      "Cash First Analysis",
+      "Liquidity Paradox",
+      "Profitability & Cost Pressure",
+      "Debt & Capital Efficiency",
+      "Top CFO Red Flags",
+      "Final CFO Verdict",
+      "Footer"
+    ]
+  }
+}
